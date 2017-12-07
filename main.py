@@ -168,7 +168,7 @@ elif opt.dataset == 'ImageNet':
     test_idx = idx[40000:]
     
     train_loader = torch.utils.data.DataLoader(
-        dset.ImageFolder('/home/jamhayes/research/UAP-imagenet/data/val/', transforms.Compose([
+        dset.ImageFolder('./imagenet/data/val/', transforms.Compose([
             transforms.Scale(round(max(netClassifier.input_size)*1.050)),
             transforms.CenterCrop(max(netClassifier.input_size)),
             transforms.ToTensor(),
@@ -180,7 +180,7 @@ elif opt.dataset == 'ImageNet':
         num_workers=opt.workers, pin_memory=True)
  
     test_loader = torch.utils.data.DataLoader(
-        dset.ImageFolder('/home/jamhayes/research/UAP-imagenet/data/val/', transforms.Compose([
+        dset.ImageFolder('./imagenet/data/val/', transforms.Compose([
             transforms.Scale(round(max(netClassifier.input_size)*1.050)),
             transforms.CenterCrop(max(netClassifier.input_size)),
             transforms.ToTensor(),
