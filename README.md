@@ -13,6 +13,17 @@ Clean Image              +          Perturbarbation          ==         Adversar
 
 -------
 
+Data set-up
+
+For ImageNet
+
+  - Follow instructions https://github.com/amd/OpenCL-caffe/wiki/Instructions-to-create-ImageNet-2012-data . The validation set should be in path `./imagenet/data/val/`. There should be 50 directories, each with 1000 images.
+  
+For CIFAR-10
+
+  - Attack code will download if dataset does not exist.
+
+
 Target model training steps:
 
 For ImageNet
