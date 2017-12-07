@@ -37,9 +37,9 @@ parser.add_argument('--log_interval', type=int, default=1, help='how many batche
 parser.add_argument('--lr', type=float, default=0.0002, help='learning rate, default=0.0002')
 parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
 
-parser.add_argument('--optimize_on_success', type=int, default=0, help="whether to optimize on samples that are already successful 
-                     - if set to 0, we only optimize on failed attempts to compute adv examples, removing the successes 
-                     - if set to 1, we only optimize on all samples 
+parser.add_argument('--optimize_on_success', type=int, default=0, help="whether to optimize on samples that are already successful \
+                     - if set to 0, we only optimize on failed attempts to compute adv examples, removing the successes \
+                     - if set to 1, we only optimize on all samples \
                      - if set to 2 this tries to build an equilibrium between highest and sec highest classes") 
 parser.add_argument('--targeted', type=int, default=0, help='if the attack is targeted (default False)')
 parser.add_argument('--chosen_target_class', type=int, default=0, help='int representing class to target')
@@ -54,7 +54,8 @@ parser.add_argument('--every', type=int, default=1, help='save if epoch is divis
 parser.add_argument('--nz', type=int, default=100, help='size of the latent z vector')
 parser.add_argument('--imageSize', type=int, default=299, help='the height / width of the input image to network')
 parser.add_argument('--netAttacker', default='', help="path to netAttacker (to continue training)")
-parser.add_argument('--netClassifier', default='./checkpoint/ckpt.t7', help="For CIFAR-10: path to netClassifier (to get target model predictions) / For ImageNet: type of classifier (e.g. inceptionV3)")
+parser.add_argument('--netClassifier', default='./checkpoint/ckpt.t7', help="For CIFAR-10: path to netClassifier (to get target model predictions) \
+                                                                             For ImageNet: type of classifier (e.g. inceptionV3)")
 parser.add_argument('--outf', default='./logs', help='folder to output images and model checkpoints')
 parser.add_argument('--manualSeed', type=int, default=5198, help='manual seed')
 parser.add_argument('--dataset', type=str, default='ImageNet', help='dataset images path')
