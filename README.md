@@ -28,7 +28,7 @@ For CIFAR-10
 
 To run the attack, choose between ImageNet and CIFAR-10 and specify the model.
 
-e.g. `python main.py --cuda --epochs 200 --batchSize 25 --shrink 0.00075 --shrink_inc 0.0001 --l2reg 0.00001 --restrict_to_correct_preds 1 --netClassifier resnet152 --imageSize 224 --outf resnet-results --every 100`
+e.g. `python main.py --cuda --dataset ImageNet --epochs 200 --batchSize 25 --shrink 0.00075 --shrink_inc 0.0001 --l2reg 0.00001 --restrict_to_correct_preds 1 --netClassifier resnet152 --imageSize 224 --outf resnet-results --every 100`
 
 
 Note: For best results on ImageNet, batch size needs to be large. This takes up a lot of memory.
