@@ -13,6 +13,18 @@ Clean Image              +          Perturbarbation          ==         Adversar
 
 -------
 
+Data set-up
+
+For ImageNet
+
+  - Follow instructions https://github.com/amd/OpenCL-caffe/wiki/Instructions-to-create-ImageNet-2012-data . The validation set should be in path `./imagenet/data/val/`. There should be 50 directories, each with 1000 images.
+  
+For CIFAR-10
+
+  - Attack code will download if dataset does not exist.
+
+-------
+
 Target model training steps:
 
 For ImageNet
@@ -22,13 +34,12 @@ For ImageNet
 For CIFAR-10
 
   - Train some models using https://github.com/kuangliu/pytorch-cifar
-  
-  
+    
 -------
 
 To run the attack, choose between ImageNet and CIFAR-10 and specify the model.
 
-e.g. `python main.py --cuda --dataset ImageNet --epochs 200 --batchSize 25 --shrink 0.00075 --shrink_inc 0.0001 --l2reg 0.00001 --restrict_to_correct_preds 1 --netClassifier resnet152 --imageSize 224 --outf resnet-results --every 100`
+e.g. `python main.py --cuda --dataset ImageNet --epochs 200 --batchSize 32 --shrink 0.00075 --shrink_inc 0.0001 --l2reg 0.00001 --restrict_to_correct_preds 1 --netClassifier resnet152 --imageSize 224 --outf resnet-results --every 100`
 
 
 Note: For best results on ImageNet, batch size needs to be large. This takes up a lot of memory.
