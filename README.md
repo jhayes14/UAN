@@ -9,7 +9,7 @@ We get pretty pictures like this:
 
 ![Alt text](figs/uap_example.png?raw=true "")
 
-Clean Image              +          Perturbarbation          ==         Adversarial Image  
+Clean Image              +          Perturbation          ==         Adversarial Image  
 
 -------
 
