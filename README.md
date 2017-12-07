@@ -1,6 +1,18 @@
 # UAN
 Code for Universal Adversarial Networks
 
+![Alt text](figs/overview.png?raw=true "")
+
+In this paper, we use generative models to compute universal adversarial perturbations. The generator is not conditioned on the images and so creates a perturbation that can be applied to any image to create an adversarial example.
+
+We get pretty pictures like this:
+
+![Alt text](figs/uap_example.png?raw=true "")
+
+Clean Image              +          Perturbarbation          ==         Adversarial Image  
+
+-------
+
 Target model training steps:
 
 For ImageNet
