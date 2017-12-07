@@ -23,6 +23,7 @@ For CIFAR-10
 
   - Attack code will download if dataset does not exist.
 
+-------
 
 Target model training steps:
 
@@ -33,8 +34,7 @@ For ImageNet
 For CIFAR-10
 
   - Train some models using https://github.com/kuangliu/pytorch-cifar
-  
-  
+    
 -------
 
 To run the attack, choose between ImageNet and CIFAR-10 and specify the model.
