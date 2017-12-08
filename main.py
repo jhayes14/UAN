@@ -48,6 +48,7 @@ parser.add_argument('--shrink', type=float, default=0.01, help='weight for miscl
 parser.add_argument('--shrink_inc', type=float, default=0.01, help='weight for misclassification success by attacker')
 parser.add_argument('--linf_weight', type=float, default=4.0, help='how much to weight the linf loss term')
 parser.add_argument('--l2reg', type=float, default=0.01, help='weight for misclassification success by attacker')
+parser.add_argument('--max_norm', type=float, default=0.04, help='max allowed perturbation')
 parser.add_argument('--cuda', action='store_true', help='enables cuda')
 parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
 parser.add_argument('--every', type=int, default=1, help='save if epoch is divisible by this')
@@ -372,7 +373,7 @@ def train(epoch, c, noise):
     if epoch % opt.every == 0:
         torch.save(netAttacker.state_dict(), '%s/netAttacker_%s.pth' % (opt.outf, epoch))
 
-    return success_count/total_count
+    return success_count/total_count, np.mean(L_inf), np.mean(dist)
 
 
 def test(epoch, c, noise):
@@ -487,7 +488,11 @@ if __name__ == '__main__':
     print(min_val, max_val)
     for epoch in range(1, opt.epochs + 1):
         start = time.time()
-        score = train(epoch, c, noise)
+        score, linf, l2 = train(epoch, c, noise)
+        if linf > opt.max_norm:
+            break
+        if l2 > opt.max_norm:
+            break
         end = time.time()
         if score >= 1.00:
             break
