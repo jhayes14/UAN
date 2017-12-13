@@ -17,7 +17,7 @@ Data set-up
 
 For ImageNet
 
-  - Follow instructions https://github.com/amd/OpenCL-caffe/wiki/Instructions-to-create-ImageNet-2012-data . The validation set should be in path `./imagenet/data/val/`. There should be 50 directories, each with 1000 images.
+  - Follow instructions https://github.com/amd/OpenCL-caffe/wiki/Instructions-to-create-ImageNet-2012-data . The validation set should be in path `./imagenet/data/val/`. There should be 1000 directories, each with 50 images.
   
 For CIFAR-10
 
