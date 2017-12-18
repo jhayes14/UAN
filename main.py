@@ -46,9 +46,10 @@ parser.add_argument('--chosen_target_class', type=int, default=0, help='int repr
 parser.add_argument('--restrict_to_correct_preds', type=int, default=1, help='if 1, only compute adv examples on correct predictions')
 parser.add_argument('--shrink', type=float, default=0.01, help='weight for misclassification success by attacker')
 parser.add_argument('--shrink_inc', type=float, default=0.01, help='weight for misclassification success by attacker')
-parser.add_argument('--linf_weight', type=float, default=4.0, help='how much to weight the linf loss term')
+parser.add_argument('--ldist_weight', type=float, default=4.0, help='how much to weight the linf loss term')
 parser.add_argument('--l2reg', type=float, default=0.01, help='weight for misclassification success by attacker')
 parser.add_argument('--max_norm', type=float, default=0.04, help='max allowed perturbation')
+parser.add_argument('--norm', type=str, default='l2', help='l2 or linf')
 parser.add_argument('--cuda', action='store_true', help='enables cuda')
 parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
 parser.add_argument('--every', type=int, default=1, help='save if epoch is divisible by this')
@@ -354,8 +355,14 @@ def train(epoch, c, noise):
         else:
              classifier_loss = torch.mean( torch.log(curr_adv_pred)-torch.log(targ_adv_pred) )
 
-        linf_loss = opt.linf_weight*torch.max(torch.abs(adv_sample - inputv))
-        loss = classifier_loss + linf_loss 
+        if opt.norm == 'linf':
+            ldist = opt.ldist_weight*torch.max(torch.abs(adv_sample - inputv))
+        elif opt.norm == 'l2':
+            ldist = opt.ldist_weight*torch.mean(torch.sqrt(torch.sum( (adv_sample - inputv)**2  )))
+        else:
+            print("Please define a norm (l2 or linf)")
+            exit()
+        loss = classifier_loss + ldist_loss 
         loss.backward()
         optimizerAttacker.step()
         c_loss.append(classifier_loss.data[0])
