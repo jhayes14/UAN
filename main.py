@@ -49,7 +49,7 @@ parser.add_argument('--shrink_inc', type=float, default=0.01, help='weight for m
 parser.add_argument('--ldist_weight', type=float, default=4.0, help='how much to weight the linf loss term')
 parser.add_argument('--l2reg', type=float, default=0.01, help='weight for misclassification success by attacker')
 parser.add_argument('--max_norm', type=float, default=0.04, help='max allowed perturbation')
-parser.add_argument('--norm', type=str, default='l2', help='l2 or linf')
+parser.add_argument('--norm', type=str, default='linf', help='l2 or linf')
 parser.add_argument('--cuda', action='store_true', help='enables cuda')
 parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
 parser.add_argument('--every', type=int, default=1, help='save if epoch is divisible by this')
