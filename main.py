@@ -212,6 +212,7 @@ def train(epoch, c, noise):
         if opt.cuda:
             inputv = inputv.cuda()
             targets = targets.cuda()
+            cls = cls.cuda()
         inputv = Variable(inputv)
         targets = Variable(targets)
 
@@ -219,8 +220,6 @@ def train(epoch, c, noise):
 
         # only computer adversarial examples on examples that are originally classified correctly        
         if opt.restrict_to_correct_preds == 1:
-            if opt.cuda:
-                cls = cls.cuda()
             # get indexes where the original predictions are incorrect
             incorrect_idxs = np.array( np.where(prediction.data.max(1)[1].eq(cls).cpu().numpy() == 0))[0].astype(int)
             skipped += incorrect_idxs.shape[0]
@@ -409,13 +408,12 @@ def test(epoch, c, noise):
         targets = torch.LongTensor(batch_size)
         if opt.cuda:
             targets = targets.cuda()
+            cls = cls.cuda()
         targets = Variable(targets)
         
         prediction = netClassifier(inputv)
         
         if opt.restrict_to_correct_preds == 1:
-            if opt.cuda:
-                cls = cls.cuda()
             incorrect_idxs = np.array( np.where(prediction.data.max(1)[1].eq(cls).cpu().numpy() == 0))[0].astype(int)
             skipped += incorrect_idxs.shape[0]
             no_skipped += (batch_size - incorrect_idxs.shape[0])
