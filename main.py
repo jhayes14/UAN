@@ -39,8 +39,7 @@ parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. de
 
 parser.add_argument('--optimize_on_success', type=int, default=0, help="whether to optimize on samples that are already successful \
                      - if set to 0, we only optimize on failed attempts to compute adv examples, removing the successes \
-                     - if set to 1, we only optimize on all samples \
-                     - if set to 2 this tries to build an equilibrium between highest and sec highest classes") 
+                     - if set to 1, we only optimize on all samples")
 parser.add_argument('--targeted', type=int, default=0, help='if the attack is targeted (default False)')
 parser.add_argument('--chosen_target_class', type=int, default=0, help='int representing class to target')
 parser.add_argument('--restrict_to_correct_preds', type=int, default=1, help='if 1, only compute adv examples on correct predictions')
@@ -324,49 +323,55 @@ def train(epoch, c, noise):
             if yes_idx.shape[0]!=0:
                 adv_prediction_succ = adv_prediction[torch.LongTensor(yes_idx).cuda()]
                 prediction_succ = prediction[torch.LongTensor(yes_idx).cuda()].data.max(1)[1]
-                adv_prediction = adv_prediction[torch.LongTensor(no_idx).cuda()]
+                adv_prediction_succ = F.softmax(adv_prediction_succ)
+                if no_idx.shape[0]!=0:
+                    adv_prediction = adv_prediction[torch.LongTensor(no_idx).cuda()]
                 adv_pred_idx = torch.FloatTensor([x[prediction_succ[i]].data[0] for i, x in enumerate(adv_prediction_succ)]).cuda()
                 adv_max_idx = adv_prediction_succ.data.max(1)[0]
                 success_loss = -torch.mean( torch.log(adv_max_idx)-torch.log(adv_pred_idx) )
             else:
                 success_loss = 0
 
-
-        # if opt.optimize_on_success == 2, we do nothing, causing the predicted and target (second max in untargeted) class to oscillate as the max
-        elif opt.optimize_on_success == 2:
-            pass
-
-        # compute loss and backprop
-        adv_prediction_softmax = F.softmax(adv_prediction)
-        #adv_prediction_np = adv_prediction.data.cpu().numpy()
-        adv_prediction_np = adv_prediction_softmax.data.cpu().numpy()
-        curr_adv_label = Variable(torch.LongTensor( np.array( [arr.argsort()[-1] for arr in adv_prediction_np] ) ) )
-        if opt.targeted == 1:
-            targ_adv_label = Variable(torch.LongTensor( np.array( [targets.data[i] for i, arr in enumerate(adv_prediction_np)] ) ) )
+        if len(no_idx)!=0:
+            # compute loss and backprop
+            adv_prediction_softmax = F.softmax(adv_prediction)
+            #adv_prediction_np = adv_prediction.data.cpu().numpy()
+            adv_prediction_np = adv_prediction_softmax.data.cpu().numpy()
+            curr_adv_label = Variable(torch.LongTensor( np.array( [arr.argsort()[-1] for arr in adv_prediction_np] ) ) )
+            if opt.targeted == 1:
+                targ_adv_label = Variable(torch.LongTensor( np.array( [targets.data[i] for i, arr in enumerate(adv_prediction_np)] ) ) )
+            else:
+                targ_adv_label = Variable(torch.LongTensor( np.array( [arr.argsort()[-2] for arr in adv_prediction_np] ) ) )
+            if opt.cuda:
+                curr_adv_label = curr_adv_label.cuda()
+                targ_adv_label = targ_adv_label.cuda()
+            curr_adv_pred = adv_prediction_softmax.gather(1, curr_adv_label.unsqueeze(1))
+            targ_adv_pred = adv_prediction_softmax.gather(1, targ_adv_label.unsqueeze(1))
+            if opt.optimize_on_success == 1:
+                 classifier_loss = torch.mean( torch.log(curr_adv_pred)-torch.log(targ_adv_pred) ) + success_loss
+            else:
+                 classifier_loss = torch.mean( torch.log(curr_adv_pred)-torch.log(targ_adv_pred) )
+    
+            if opt.norm == 'linf':
+                ldist = opt.ldist_weight*torch.max(torch.abs(adv_sample - inputv))
+            elif opt.norm == 'l2':
+                ldist = opt.ldist_weight*torch.mean(torch.sqrt(torch.sum( (adv_sample - inputv)**2  )))
+            else:
+                print("Please define a norm (l2 or linf)")
+                exit()
+            loss = classifier_loss + ldist_loss 
+            loss.backward()
+            optimizerAttacker.step()
+            c_loss.append(classifier_loss.data[0])
         else:
-            targ_adv_label = Variable(torch.LongTensor( np.array( [arr.argsort()[-2] for arr in adv_prediction_np] ) ) )
-        if opt.cuda:
-            curr_adv_label = curr_adv_label.cuda()
-            targ_adv_label = targ_adv_label.cuda()
-        curr_adv_pred = adv_prediction_softmax.gather(1, curr_adv_label.unsqueeze(1))
-        targ_adv_pred = adv_prediction_softmax.gather(1, targ_adv_label.unsqueeze(1))
-        if opt.optimize_on_success == 1:
-             classifier_loss = torch.mean( torch.log(curr_adv_pred)-torch.log(targ_adv_pred) ) + success_loss
-        else:
-             classifier_loss = torch.mean( torch.log(curr_adv_pred)-torch.log(targ_adv_pred) )
-
-        if opt.norm == 'linf':
-            ldist = opt.ldist_weight*torch.max(torch.abs(adv_sample - inputv))
-        elif opt.norm == 'l2':
-            ldist = opt.ldist_weight*torch.mean(torch.sqrt(torch.sum( (adv_sample - inputv)**2  )))
-        else:
-            print("Please define a norm (l2 or linf)")
-            exit()
-        loss = classifier_loss + ldist_loss 
-        loss.backward()
-        optimizerAttacker.step()
-        c_loss.append(classifier_loss.data[0])
-        
+            if opt.optimize_on_success == 1:
+                classifier_loss = success_loss
+                c_loss.append(classifier_loss)
+                loss.backward()
+                optimizerAttacker.step()
+            else:
+                c_loss.append(0)
+            
         # log to file  
         progress_bar(batch_idx, len(train_loader), "Tr E%s, C_L %.5f A_Succ %.5f L_inf %.5f L2 %.5f (Pert %.2f, Adv %.2f, Clean %.2f) C %.6f Skipped %.1f%%" %(epoch, np.mean(c_loss), success_count/total_count, np.mean(L_inf), np.mean(dist), np.mean(pert_norm), np.mean(adv_norm), np.mean(non_adv_norm), c, 100*(skipped/(skipped+no_skipped)))) 
         WriteToFile('./%s/log' %(opt.outf),  "Tr Epoch %s batch_idx %s C_L %.5f A_Succ %.5f L_inf %.5f L2 %.5f (Pert %.2f, Adv %.2f, Clean %.2f) C %.6f Skipped %.1f%%" %(epoch, batch_idx, np.mean(c_loss), success_count/total_count, np.mean(L_inf), np.mean(dist), np.mean(pert_norm), np.mean(adv_norm), np.mean(non_adv_norm), c, 100*(skipped/(skipped+no_skipped))))
