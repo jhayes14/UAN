@@ -13,6 +13,12 @@ Clean Image              +          Perturbation          ==         Adversarial
 
 -------
 
+Here is the output of a UAN throughout training:
+
+![Alt text](figs/pert_evolution_1.gif?raw=true "")
+
+-------
+
 Data set-up
 
 For ImageNet
