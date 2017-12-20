@@ -367,6 +367,10 @@ def train(epoch, c, noise):
             if opt.optimize_on_success == 1:
                 classifier_loss = success_loss
                 c_loss.append(classifier_loss)
+                classifier_loss = torch.FloatTensor([classifier_loss])
+                classifier_loss = Variable(classifier_loss, requires_grad=True)
+                if opt.cuda:
+                    classifier_loss = classifier_loss.cuda()
                 loss.backward()
                 optimizerAttacker.step()
             else:
