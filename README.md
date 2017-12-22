@@ -1,5 +1,5 @@
 # UAN
-Code for Universal Adversarial Networks
+Code for <a href="https://arxiv.org/abs/1708.05207">Learning Universal Adversarial Perturbations with Generative Models</a>
 
 ![Alt text](figs/overview.png?raw=true "")
 
