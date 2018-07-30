@@ -351,9 +351,9 @@ def train(epoch, c, noise):
                  classifier_loss = torch.mean( torch.log(curr_adv_pred)-torch.log(targ_adv_pred) )
     
             if opt.norm == 'linf':
-                ldist = opt.ldist_weight*torch.max(torch.abs(adv_sample - inputv))
+                ldist_loss = opt.ldist_weight*torch.max(torch.abs(adv_sample - inputv))
             elif opt.norm == 'l2':
-                ldist = opt.ldist_weight*torch.mean(torch.sqrt(torch.sum( (adv_sample - inputv)**2  )))
+                ldist_loss = opt.ldist_weight*torch.mean(torch.sqrt(torch.sum( (adv_sample - inputv)**2  )))
             else:
                 print("Please define a norm (l2 or linf)")
                 exit()
